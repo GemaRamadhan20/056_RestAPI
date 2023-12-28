@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kontak.R
 import com.example.kontak.model.Kontak
+import com.example.kontak.navigation.DestinasiNavigasi
 import com.example.kontak.ui.PenyediaViewModel
 import com.example.kontak.ui.TopAppBarKontak
 import com.example.kontak.ui.home.viewmodel.HomeViewModel
@@ -140,7 +141,9 @@ fun KontakLayout(
                 }
             }
         }
-
+        object DestinasiHome : DestinasiNavigasi {
+            override val route = "home"
+            override val titleRes = "Kontak"
     }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
