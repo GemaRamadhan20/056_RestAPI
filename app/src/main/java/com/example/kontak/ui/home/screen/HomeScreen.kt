@@ -1,6 +1,7 @@
 package com.example.kontak.ui.home.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,36 +19,31 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kontak.R
 import com.example.kontak.model.Kontak
+import com.example.kontak.ui.PenyediaViewModel
+import com.example.kontak.ui.TopAppBarKontak
+import com.example.kontak.ui.home.viewmodel.HomeViewModel
 import com.example.kontak.ui.home.viewmodel.KontakUIState
 
 
-@Composable
-fun HomeScreen(
-    kontakUiState: KontakUIState, retryAction: () -> Unit, modifier: Modifier = Modifier
-){
 
-    when (kontakUiState) {
-        is KontakUIState.Loading -> OnLoading(modifier = modifier.fillMaxSize())
-        is KontakUIState.Succese -> KontakLayout(
-            kontak = kontakUiState.kontak, modifier = modifier.fillMaxWidth()
-        )
-
-        is KontakUIState.Error -> onError(retryAction, modifier = modifier.fillMaxSize())
-    }
-}
 
 @Composable
 fun OnLoading(modifier: Modifier = Modifier) {
@@ -80,56 +76,88 @@ fun onError(retryAction: () -> Unit, modifier: Modifier = Modifier){
 @Composable
 fun KontakLayout(
     kontak : List<Kontak>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDetailClick: (Kontak) -> Unit,
+    onDeleteClick: (Kontak) -> Unit = {}
 ){
     LazyColumn(
-        modifier = Modifier,
+        modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)){
         items(kontak){kontak ->
-            KontakCard(kontak = kontak, modifier = Modifier.fillMaxWidth())
-        }
-    }
-}
-
-
-@Composable
-fun KontakCard(
-    kontak: Kontak,
-    onDeleteClick: (Kontak) -> Unit = {},
-    modifier: Modifier = Modifier
-){
-    Card(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = kontak.nama,
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                Spacer(Modifier.weight(1f))
-                IconButton(onClick = {onDeleteClick(kontak)}) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                    )
-                Text(
-                    text = kontak.nohp,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            Text(
-                text = kontak.alamat,
-                style = MaterialTheme.typography.titleMedium,
+            KontakCard(
+                kontak = kontak,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onDetailClick(kontak) },
+                onDeleteClick = {
+                    onDeleteClick(kontak)
+                }
             )
         }
     }
 }
+
+
+
+    @Composable
+    fun KontakCard(
+        kontak: Kontak,
+        onDeleteClick: (Kontak) -> Unit = {},
+        modifier: Modifier = Modifier
+    ) {
+        Card(
+            modifier = modifier,
+            shape = MaterialTheme.shapes.medium,
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = kontak.nama,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = { onDeleteClick(kontak) }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                        )
+                        Text(
+                            text = kontak.nohp,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
+                    Text(
+                        text = kontak.alamat,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+            }
+        }
+
+    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    navigateToItemEntry: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDetailClick: (Int) -> Unit = {},
+    viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
+){
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    Scaffold (
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBarKontak(
+                title = DestinasiHome.titleRes,
+                canNavigateBack = false,
+                scrollBehavior = scrollBehavior,
+            )
+        },
