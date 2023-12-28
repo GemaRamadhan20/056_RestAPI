@@ -4,8 +4,11 @@ import com.example.kontak.model.Kontak
 import com.example.kontak.network.KontakService
 
 interface KontakRepository {
-    /** Fetches List Of Kontak From KontakAPI */
     suspend fun getKontak(): List<Kontak>
+    suspend fun insertKontak(kontak: Kontak)
+    suspend fun updateKontak(id: Int, kontak: Kontak)
+    suspend fun deleteKontak(id: Int)
+    suspend fun getKontakById(id: Int): Kontak
 }
 
 class NetworkKontakRepository(
