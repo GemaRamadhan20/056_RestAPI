@@ -37,5 +37,8 @@ class NetworkKontakRepository(
             throw e
         }
     }
+    override suspend fun getKontakById(id: Int): Kontak {
+        return kontakApiService.getKontakById(id)
+    }
 
 }
