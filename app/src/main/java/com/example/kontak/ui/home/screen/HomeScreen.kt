@@ -46,6 +46,30 @@ import com.example.kontak.ui.home.viewmodel.HomeViewModel
 import com.example.kontak.ui.home.viewmodel.KontakUIState
 
 
+@Composable
+fun HomeStatus(
+    kontakUIState: KontakUIState,
+    retryAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDeleteClick: (Kontak) -> Unit = {},
+    onDetailClick: (Int) -> Unit
+){
+    when (kontakUIState){
+        is KontakUIState.Loading -> OnLoading(modifier = modifier.fillMaxSize())
+        is KontakUIState.Succese -> KontakLayout(
+            kontak = kontakUIState.kontak,
+            modifier = modifier.fillMaxWidth(),
+            onDetailClick = {
+                onDetailClick(it.id)
+            },
+            onDeleteClick = {
+                onDeleteClick(it)
+            }
+        )
+        is KontakUIState.Error -> onError(retryAction, modifier = modifier.fillMaxSize())
+    }
+}
+
 
 
 @Composable
@@ -146,32 +170,53 @@ fun KontakLayout(
         object DestinasiHome : DestinasiNavigasi {
             override val route = "home"
             override val titleRes = "Kontak"
-    }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HomeScreen(
-    navigateToItemEntry: () -> Unit,
-    modifier: Modifier = Modifier,
-    onDetailClick: (Int) -> Unit = {},
-    viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
-){
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+        }
 
-    Scaffold (
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBarKontak(
-                title = DestinasiHome.titleRes,
-                canNavigateBack = false,
-                scrollBehavior = scrollBehavior,
-            )
-        },floatingActionButton = {
-            FloatingActionButton(
-                onClick = navigateToItemEntry,
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(18.dp),
-            ) {
-                Icon(imageVector = Icons.Default.Add,
-                    contentDescription = "Add Kontak")
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun HomeScreen(
+            navigateToItemEntry: () -> Unit,
+            modifier: Modifier = Modifier,
+            onDetailClick: (Int) -> Unit = {},
+            viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
+        ) {
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+            Scaffold(
+                modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                topBar = {
+                    TopAppBarKontak(
+                        title = DestinasiHome.titleRes,
+                        canNavigateBack = false,
+                        scrollBehavior = scrollBehavior,
+                    )
+                }, floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = navigateToItemEntry,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.padding(18.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Kontak"
+                        )
+                    }
+                }
+            ) { innerPadding ->
+
+                HomeStatus(
+                    kontakUIState = viewModel.kontakUIState,
+                    retryAction = {
+                        viewModel.getKontak()
+                    },
+                    modifier = Modifier.padding(innerPadding),
+
+                    onDetailClick = onDetailClick,
+                    onDeleteClick = {
+                        viewModel.deleteKontak(it.id)
+                        viewModel.getKontak()
+                    }
+                )
             }
         }
+    }
