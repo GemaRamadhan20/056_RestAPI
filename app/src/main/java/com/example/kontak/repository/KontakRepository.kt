@@ -2,6 +2,7 @@ package com.example.kontak.repository
 
 import com.example.kontak.model.Kontak
 import com.example.kontak.network.KontakService
+import java.io.IOException
 
 interface KontakRepository {
     suspend fun getKontak(): List<Kontak>
@@ -22,6 +23,19 @@ class NetworkKontakRepository(
     }
     override suspend fun updateKontak(id: Int, kontak: Kontak) {
         kontakApiService.updateKontak(id, kontak)
+    }
+    override suspend fun deleteKontak(id: Int) {
+        try {
+            val response = kontakApiService.deleteKontak(id)
+            if (!response.isSuccessful) {
+                throw IOException("Failed to delete kontak. HTTP status code: ${response.code()}")
+            }
+            else {
+                response.message()
+            }
+        } catch (e: Exception) {
+            throw e
+        }
     }
 
 }
