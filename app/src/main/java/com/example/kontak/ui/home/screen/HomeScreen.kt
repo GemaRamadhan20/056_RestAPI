@@ -66,38 +66,34 @@ fun HomeStatus(
                 onDeleteClick(it)
             }
         )
-        is KontakUIState.Error -> onError(retryAction, modifier = modifier.fillMaxSize())
+        is KontakUIState.Error -> OnError(retryAction, modifier = modifier.fillMaxSize())
     }
 }
 
-
-
 @Composable
-fun OnLoading(modifier: Modifier = Modifier) {
-    Image(
-        modifier = modifier.size(200.dp),
-        painter = painterResource(R.drawable.loading_img),
-        contentDescription = stringResource(R.string.loading )
-
-    )
-}
-
-@Composable
-fun onError(retryAction: () -> Unit, modifier: Modifier = Modifier){
+fun OnError(retryAction: () -> Unit, modifier: Modifier = Modifier){
     Column (
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Image(
-            painter = painterResource(id = R.drawable.ic_connection_error),
+    ) {
+        Image(painter = painterResource(id = R.drawable.ic_connection_error),
             contentDescription = ""
         )
-        Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
+        Text(text = stringResource(id = R.string.loading_failed), modifier = Modifier.padding(16.dp))
         Button(onClick = retryAction) {
-            Text(stringResource(R.string.retry))
+            Text(stringResource(id = R.string.retry))
         }
     }
+}
+
+@Composable
+fun OnLoading(modifier: Modifier = Modifier){
+    Image(
+        modifier = modifier.size(200.dp),
+        painter = painterResource(id = R.drawable.loading_img),
+        contentDescription = stringResource(id = R.string.loading)
+    )
 }
 
 @Composable
@@ -125,98 +121,98 @@ fun KontakLayout(
     }
 }
 
-
-
-    @Composable
-    fun KontakCard(
-        kontak: Kontak,
-        onDeleteClick: (Kontak) -> Unit = {},
-        modifier: Modifier = Modifier
+@Composable
+fun KontakCard(
+    kontak: Kontak,
+    onDeleteClick: (Kontak) -> Unit = {},
+    modifier: Modifier = Modifier
+){
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Card(
-            modifier = modifier,
-            shape = MaterialTheme.shapes.medium,
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = kontak.nama,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Spacer(Modifier.weight(1f))
-                    IconButton(onClick = { onDeleteClick(kontak) }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                        )
-                        Text(
-                            text = kontak.nohp,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                    }
-                    Text(
-                        text = kontak.alamat,
-                        style = MaterialTheme.typography.titleMedium,
+                Text(
+                    text = kontak.nama,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = {onDeleteClick(kontak)}) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
                     )
                 }
-            }
-        }
-        object DestinasiHome : DestinasiNavigasi {
-            override val route = "home"
-            override val titleRes = "Kontak"
-        }
-
-        @OptIn(ExperimentalMaterial3Api::class)
-        @Composable
-        fun HomeScreen(
-            navigateToItemEntry: () -> Unit,
-            modifier: Modifier = Modifier,
-            onDetailClick: (Int) -> Unit = {},
-            viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
-        ) {
-            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
-            Scaffold(
-                modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                topBar = {
-                    TopAppBarKontak(
-                        title = DestinasiHome.titleRes,
-                        canNavigateBack = false,
-                        scrollBehavior = scrollBehavior,
-                    )
-                }, floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = navigateToItemEntry,
-                        shape = MaterialTheme.shapes.medium,
-                        modifier = Modifier.padding(18.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add Kontak"
-                        )
-                    }
-                }
-            ) { innerPadding ->
-
-                HomeStatus(
-                    kontakUIState = viewModel.kontakUIState,
-                    retryAction = {
-                        viewModel.getKontak()
-                    },
-                    modifier = Modifier.padding(innerPadding),
-
-                    onDetailClick = onDetailClick,
-                    onDeleteClick = {
-                        viewModel.deleteKontak(it.id)
-                        viewModel.getKontak()
-                    }
+                Spacer(Modifier.weight(1f))
+                Icon(imageVector = Icons.Default.Phone, contentDescription = null)
+                Text(
+                    text = kontak.nohp,
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
+            Text(
+                text = kontak.alamat,
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
     }
+}
+
+object DestinasiHome : DestinasiNavigasi {
+    override val route = "home"
+    override val titleRes = "Kontak"
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    navigateToItemEntry: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDetailClick: (Int) -> Unit = {},
+    viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
+){
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    Scaffold (
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBarKontak(
+                title = DestinasiHome.titleRes,
+                canNavigateBack = false,
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = navigateToItemEntry,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.padding(18.dp),
+            ) {
+                Icon(imageVector = Icons.Default.Add,
+                    contentDescription = "Add Kontak")
+            }
+        }
+    ){ innerPadding ->
+
+        HomeStatus(
+            kontakUIState = viewModel.kontakUIState,
+            retryAction = {
+                viewModel.getKontak()
+            },
+            modifier = Modifier.padding(innerPadding),
+
+            onDetailClick = onDetailClick,
+            onDeleteClick = {
+                viewModel.deleteKontak(it.id)
+                viewModel.getKontak()
+            }
+        )
+    }
+}

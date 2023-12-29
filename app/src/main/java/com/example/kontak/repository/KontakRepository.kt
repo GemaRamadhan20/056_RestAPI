@@ -3,6 +3,7 @@ package com.example.kontak.repository
 import com.example.kontak.model.Kontak
 import com.example.kontak.network.KontakService
 import java.io.IOException
+import java.lang.Exception
 
 interface KontakRepository {
     suspend fun getKontak(): List<Kontak>
@@ -21,9 +22,11 @@ class NetworkKontakRepository(
     override suspend fun insertKontak(kontak: Kontak) {
         kontakApiService.insertKontak(kontak)
     }
+
     override suspend fun updateKontak(id: Int, kontak: Kontak) {
         kontakApiService.updateKontak(id, kontak)
     }
+
     override suspend fun deleteKontak(id: Int) {
         try {
             val response = kontakApiService.deleteKontak(id)
@@ -37,8 +40,8 @@ class NetworkKontakRepository(
             throw e
         }
     }
+
     override suspend fun getKontakById(id: Int): Kontak {
         return kontakApiService.getKontakById(id)
     }
-
 }
